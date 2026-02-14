@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
 use App\Http\Controllers\BulkItemController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
@@ -113,6 +115,15 @@ Route::middleware('auth')->group(function () {
         Route::get('reports/status-breakdown', [ReportController::class, 'statusBreakdown'])->name('reports.status-breakdown');
         Route::get('reports/acquisition-history', [ReportController::class, 'acquisitionHistory'])->name('reports.acquisition-history');
 
+        // Import & Export
+        Route::get('import', [ImportController::class, 'index'])->name('import.index');
+        Route::post('import/upload', [ImportController::class, 'upload'])->name('import.upload');
+        Route::get('import/map', [ImportController::class, 'map'])->name('import.map');
+        Route::post('import/validate', [ImportController::class, 'validate'])->name('import.validate');
+        Route::post('import/execute', [ImportController::class, 'execute'])->name('import.execute');
+        Route::get('export', [ExportController::class, 'index'])->name('export.index');
+        Route::get('export/items', [ExportController::class, 'items'])->name('export.items');
+
         // Trash (soft-deleted items)
         Route::get('trash', [TrashController::class, 'index'])->name('trash.index');
         Route::post('trash/{item}/restore', [TrashController::class, 'restore'])->name('trash.restore');
@@ -125,6 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
             Route::resource('users', UserController::class)->except(['show', 'destroy']);
             Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+            Route::get('activity-log', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-log');
             Route::get('users/{user}/activity', [UserController::class, 'activityLog'])->name('users.activity');
         });
     });

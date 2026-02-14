@@ -379,7 +379,46 @@
 
     {{-- History Tab --}}
     <div x-show="tab === 'history'" class="p-6">
-        <p class="text-gray-500 text-sm">Audit history will be available in a future update.</p>
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Change History</h3>
+        @if($auditLogs->count())
+            <div class="space-y-4">
+                @foreach($auditLogs as $log)
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full
+                                    @if($log->action === 'created') bg-green-100 text-green-800
+                                    @elseif($log->action === 'updated') bg-blue-100 text-blue-800
+                                    @elseif($log->action === 'deleted') bg-red-100 text-red-800
+                                    @else bg-gray-100 text-gray-800 @endif
+                                ">{{ ucfirst($log->action) }}</span>
+                                <span class="text-sm text-gray-500">by {{ $log->user?->display_identifier ?? 'System' }}</span>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ $log->created_at->format('M j, Y g:i A') }}</span>
+                        </div>
+
+                        @if($log->action === 'updated' && $log->old_values && $log->new_values)
+                            <div class="mt-2 space-y-1">
+                                @foreach($log->new_values as $field => $newValue)
+                                    <div class="text-sm">
+                                        <span class="font-medium text-gray-700">{{ str_replace('_', ' ', ucfirst($field)) }}:</span>
+                                        <span class="text-red-600 line-through">{{ is_array($log->old_values[$field] ?? '') ? json_encode($log->old_values[$field]) : ($log->old_values[$field] ?? 'empty') }}</span>
+                                        <span class="text-gray-400 mx-1">&rarr;</span>
+                                        <span class="text-green-700">{{ is_array($newValue) ? json_encode($newValue) : ($newValue ?: 'empty') }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif($log->action === 'created')
+                            <p class="text-sm text-gray-500 mt-1">Item was created.</p>
+                        @elseif($log->action === 'deleted')
+                            <p class="text-sm text-gray-500 mt-1">Item was deleted.</p>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-gray-500 text-center py-8">No change history recorded yet.</p>
+        @endif
     </div>
 </div>
 @endsection

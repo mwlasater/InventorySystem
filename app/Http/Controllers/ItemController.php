@@ -93,7 +93,8 @@ class ItemController extends Controller
     public function show(Item $item)
     {
         $item->load(['category', 'location', 'tags', 'photos', 'documents', 'transactions', 'createdBy', 'modifiedBy']);
-        return view('items.show', compact('item'));
+        $auditLogs = $item->auditLog()->with('user')->limit(50)->get();
+        return view('items.show', compact('item', 'auditLogs'));
     }
 
     public function edit(Item $item)
