@@ -16,7 +16,7 @@ class DuplicateDetectionServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new DuplicateDetectionService();
+        $this->service = new DuplicateDetectionService;
     }
 
     public function test_matches_on_barcode(): void

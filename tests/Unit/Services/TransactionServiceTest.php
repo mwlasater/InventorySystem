@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\AuditLog;
 use App\Models\Item;
 use App\Services\TransactionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,7 +16,7 @@ class TransactionServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new TransactionService();
+        $this->service = new TransactionService;
     }
 
     public function test_create_updates_item_status_and_records_audit(): void

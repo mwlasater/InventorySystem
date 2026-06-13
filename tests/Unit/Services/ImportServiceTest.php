@@ -4,7 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Models\Category;
 use App\Models\Item;
-use App\Models\Location;
 use App\Models\User;
 use App\Services\ImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,12 +18,12 @@ class ImportServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImportService();
+        $this->service = new ImportService;
     }
 
     private function makeCsv(string $contents): string
     {
-        $path = tempnam(sys_get_temp_dir(), 'import_') . '.csv';
+        $path = tempnam(sys_get_temp_dir(), 'import_').'.csv';
         file_put_contents($path, $contents);
 
         return $path;
@@ -43,9 +42,9 @@ class ImportServiceTest extends TestCase
     public function test_validate_flags_missing_name_and_invalid_status(): void
     {
         $csv = $this->makeCsv(
-            "Name,Status\n" .
-            "Good Item,in_collection\n" .
-            ",in_collection\n" .          // missing name
+            "Name,Status\n".
+            "Good Item,in_collection\n".
+            ",in_collection\n".          // missing name
             "Bad Status Item,banana\n"     // invalid status
         );
 
@@ -66,8 +65,8 @@ class ImportServiceTest extends TestCase
         Category::create(['name' => 'Tools']);
 
         $csv = $this->makeCsv(
-            "Name,Category\n" .
-            "Hammer,Tools\n" .
+            "Name,Category\n".
+            "Hammer,Tools\n".
             "Wrench,Nonexistent\n"
         );
 
@@ -81,8 +80,8 @@ class ImportServiceTest extends TestCase
     public function test_execute_imports_rows_and_creates_related_records(): void
     {
         $csv = $this->makeCsv(
-            "Name,Category,Location,Tags,Estimated Value\n" .
-            "Drill,Power Tools,Garage Shelf,\"electric,heavy\",75.50\n" .
+            "Name,Category,Location,Tags,Estimated Value\n".
+            "Drill,Power Tools,Garage Shelf,\"electric,heavy\",75.50\n".
             ",Power Tools,Garage Shelf,,10\n"   // missing name -> skipped
         );
 

@@ -18,7 +18,7 @@ class ItemFilterServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ItemFilterService();
+        $this->service = new ItemFilterService;
     }
 
     /** @param array<string, mixed> $params */
