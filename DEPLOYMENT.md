@@ -81,8 +81,40 @@ Add via DreamHost Panel or crontab:
 This runs:
 - `trash:purge` - Daily cleanup of items in trash > 90 days
 - `backup:run` - Daily database backup
+- `loans:remind-overdue` - Daily (08:00) reminder to loan creators about items
+  past their expected return date. Reminders are **queued**, so they only send
+  if the queue worker cron (see [Queue Jobs Not Processing](#queue-jobs-not-processing))
+  is also running, and require working mail settings (below). Each loan is
+  re-reminded at most once every 7 days.
 
-### 6. SSL Certificate
+### 6. Email Delivery
+
+The app sends email for **password resets** and **overdue-loan reminders**. Both
+are non-functional until a real transport is configured — `tools/.env.production.example`
+ships DreamHost SMTP defaults; set a real `MAIL_PASSWORD` and confirm the sending
+address:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.dreamhost.com
+MAIL_PORT=465
+MAIL_USERNAME=noreply@lasater.com
+MAIL_PASSWORD=CHANGE_ME
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS="noreply@lasater.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+> Password-reset emails send synchronously (immediately). Overdue-loan reminders
+> are queued, so they additionally need the queue worker cron to be running.
+
+Verify after deploy with `php artisan tinker`:
+```php
+Notification::route('mail', 'you@example.com')
+    ->notify(new \App\Notifications\ResetPasswordNotification('test-token'));
+```
+
+### 7. SSL Certificate
 
 DreamHost provides free Let's Encrypt SSL. Enable it under **Manage Domains > Secure Hosting**.
 
