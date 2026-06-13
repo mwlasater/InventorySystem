@@ -96,6 +96,28 @@ is required:
 ./vendor/bin/sail artisan test
 ```
 
+## API
+
+A token-authenticated JSON API (Laravel Sanctum) is available under `/api/v1`
+for mobile/external clients. Create a personal access token from **Profile → API
+Tokens** (shown once), then send it as a bearer token:
+
+```bash
+curl -H "Authorization: Bearer <token>" -H "Accept: application/json" \
+  https://your-host/api/v1/items
+```
+
+Tokens inherit the user's access. Read endpoints in this version:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/v1/user` | The authenticated user |
+| GET | `/api/v1/items` | List items (`category_id`, `status`, `favorites`, `sort`, `per_page`) |
+| GET | `/api/v1/items/{id}` | A single item |
+| GET | `/api/v1/search?q=` | Full-text item search |
+| GET | `/api/v1/barcode-lookup?barcode=` | Look up an item by barcode/SKU |
+| GET | `/api/v1/tags` | List tags |
+
 ## Production
 
 Production runs natively on DreamHost — Docker is not used there. Build assets

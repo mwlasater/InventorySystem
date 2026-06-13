@@ -96,6 +96,10 @@ class UserController extends Controller
             'force_password_change' => true,
         ]);
 
+        // Revoke API tokens too, so an existing token can't bypass the forced
+        // password change the way it would survive a web logout.
+        $user->tokens()->delete();
+
         return back()->with('success', "Password reset for '{$user->username}'. New temporary password: {$tempPassword}");
     }
 
