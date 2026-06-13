@@ -120,17 +120,34 @@ DreamHost provides free Let's Encrypt SSL. Enable it under **Manage Domains > Se
 
 ## Subsequent Deployments
 
-Use the deploy script:
+**Before deploying:**
+
+1. **Check out the release locally** — the deploy script ships your current working
+   tree, not a branch: `git checkout main && git pull`.
+2. **Update the production `.env` first.** It is not synced by the deploy script,
+   and `config:cache` bakes it in at deploy time, so any *new* settings must
+   already be present on the server before you deploy. For example this release
+   needs a real `MAIL_PASSWORD` (password resets and overdue-loan reminders are
+   silent without it); set `ENFORCE_2FA_FOR_ADMINS=true` here too if you want it.
+3. **Never rotate `APP_KEY`** once users have enrolled in 2FA — their encrypted
+   two-factor secrets and recovery codes would become unrecoverable.
+
+Then use the deploy script:
 
 ```bash
 ./tools/deploy.sh user@server.dreamhost.com ~/inventory.lasater.com
 ```
+
+It builds assets, syncs files, installs production dependencies, **takes a safety
+backup** (so a failed migration can be rolled back with `php artisan backup:restore`),
+runs migrations, and rebuilds caches.
 
 Or manually:
 
 ```bash
 git pull origin main
 composer install --no-dev --optimize-autoloader
+php artisan backup:run            # safety backup before migrating
 php artisan migrate --force
 php artisan config:cache
 php artisan route:cache

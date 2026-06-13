@@ -5,6 +5,16 @@
 #
 # Example: ./tools/deploy.sh lasater@server.dreamhost.com /home/lasater/inventory.lasater.com
 #
+# Before running:
+#   1. Check out the release commit locally — this script ships your current
+#      working tree, not a branch: `git checkout main && git pull`.
+#   2. Make sure the *production* .env (which is NOT synced) is up to date.
+#      `php artisan config:cache` below bakes .env in at deploy time, so any new
+#      settings (e.g. MAIL_PASSWORD, ENFORCE_2FA_FOR_ADMINS) must already be set
+#      on the server or they won't take effect.
+#   Note: do not rotate APP_KEY once users have enrolled in 2FA — their encrypted
+#   secrets/recovery codes would become undecryptable.
+#
 
 set -e
 
@@ -44,6 +54,10 @@ ssh "${REMOTE_HOST}" << REMOTE_COMMANDS
 
     # Install production dependencies
     composer install --no-dev --optimize-autoloader --no-interaction
+
+    # Safety backup before migrating: if a migration fails, restore with
+    # 'php artisan backup:restore'. set -e aborts the deploy if the backup fails.
+    php artisan backup:run
 
     # Run migrations
     php artisan migrate --force
