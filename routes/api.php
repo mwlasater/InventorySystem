@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
  * personal access token (Authorization: Bearer <token>) and an active account.
  * Tokens inherit their user's access, so the user's role/status governs.
  */
-Route::middleware(['auth:sanctum', 'api.active'])->prefix('v1')->name('api.v1.')->group(function () {
+Route::middleware(['auth:sanctum', 'api.active', 'throttle:api'])->prefix('v1')->name('api.v1.')->group(function () {
     Route::get('user', fn (Request $request) => $request->user()->only(['id', 'username', 'display_name', 'email', 'role']))
         ->name('user');
 

@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class TokenAuthTest extends TestCase
@@ -85,5 +86,29 @@ class TokenAuthTest extends TestCase
             ->assertRedirect();
 
         $this->assertDatabaseHas('personal_access_tokens', ['id' => $token->id]);
+    }
+
+    public function test_api_is_rate_limited(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        foreach (range(1, 60) as $i) {
+            $this->getJson('/api/v1/tags')->assertOk();
+        }
+
+        $this->getJson('/api/v1/tags')->assertStatus(429);
+    }
+
+    public function test_admin_password_reset_revokes_the_users_tokens(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $user = User::factory()->create();
+        $user->createToken('phone');
+        $this->assertCount(1, $user->tokens()->get());
+
+        $this->actingAs($admin)->post(route('admin.users.reset-password', $user))
+            ->assertRedirect();
+
+        $this->assertCount(0, $user->fresh()->tokens()->get());
     }
 }
