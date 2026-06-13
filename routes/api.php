@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\BarcodeController;
 use App\Http\Controllers\Api\V1\ItemController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\TagController;
+use App\Http\Controllers\Api\V1\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,11 @@ Route::middleware(['auth:sanctum', 'api.active', 'throttle:api'])->prefix('v1')-
 
     Route::get('items', [ItemController::class, 'index'])->name('items.index');
     Route::get('items/{item}', [ItemController::class, 'show'])->name('items.show');
+    Route::post('items', [ItemController::class, 'store'])->name('items.store');
+    Route::put('items/{item}', [ItemController::class, 'update'])->name('items.update');
+    Route::delete('items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+
+    Route::post('items/{item}/transactions', [TransactionController::class, 'store'])->name('items.transactions.store');
 
     Route::get('search', SearchController::class)->name('search');
     Route::get('barcode-lookup', BarcodeController::class)->name('barcode-lookup');

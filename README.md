@@ -107,16 +107,23 @@ curl -H "Authorization: Bearer <token>" -H "Accept: application/json" \
   https://your-host/api/v1/items
 ```
 
-Tokens inherit the user's access. Read endpoints in this version:
+Tokens inherit the user's access, and the API is rate-limited to 60 requests/min
+per user. Endpoints in this version:
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/api/v1/user` | The authenticated user |
 | GET | `/api/v1/items` | List items (`category_id`, `status`, `favorites`, `sort`, `per_page`) |
 | GET | `/api/v1/items/{id}` | A single item |
+| POST | `/api/v1/items` | Create an item |
+| PUT | `/api/v1/items/{id}` | Update an item |
+| DELETE | `/api/v1/items/{id}` | Move an item to trash |
+| POST | `/api/v1/items/{id}/transactions` | Record a transaction (may change item status) |
 | GET | `/api/v1/search?q=` | Full-text item search |
 | GET | `/api/v1/barcode-lookup?barcode=` | Look up an item by barcode/SKU |
 | GET | `/api/v1/tags` | List tags |
+
+Validation failures return `422` with a JSON `errors` object.
 
 ## Production
 
