@@ -44,6 +44,7 @@
             <button @click="tab = 'photos'" :class="tab === 'photos' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-6 py-3 border-b-2 font-medium text-sm whitespace-nowrap">Photos ({{ $item->photos->count() }})</button>
             <button @click="tab = 'details'" :class="tab === 'details' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-6 py-3 border-b-2 font-medium text-sm whitespace-nowrap">Details</button>
             <button @click="tab = 'transactions'" :class="tab === 'transactions' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-6 py-3 border-b-2 font-medium text-sm whitespace-nowrap">Transactions</button>
+            <button @click="tab = 'valuations'" :class="tab === 'valuations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-6 py-3 border-b-2 font-medium text-sm whitespace-nowrap">Valuations ({{ $item->valuations->count() }})</button>
             <button @click="tab = 'documents'" :class="tab === 'documents' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-6 py-3 border-b-2 font-medium text-sm whitespace-nowrap">Documents ({{ $item->documents->count() }})</button>
             <button @click="tab = 'history'" :class="tab === 'history' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="px-6 py-3 border-b-2 font-medium text-sm whitespace-nowrap">History</button>
         </nav>
@@ -259,6 +260,56 @@
                 <h4 class="text-sm font-medium text-gray-500 mb-2">Notes</h4>
                 <p class="text-gray-800 whitespace-pre-wrap">{{ $item->notes }}</p>
             </div>
+        @endif
+    </div>
+
+    {{-- Valuations Tab --}}
+    <div x-show="tab === 'valuations'" class="p-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Valuation History</h3>
+
+        @if($item->valuations->count())
+            @php
+                // Oldest -> newest for the trend direction; the list below shows newest first.
+                // valued_at is date-only, so tiebreak on id to keep first/current
+                // deterministic when several valuations share a day.
+                $series = $item->valuations->sortBy([['valued_at', 'asc'], ['id', 'asc']])->values();
+                $first = $series->first();
+                $current = $series->last();
+                $change = (float) $current->value - (float) $first->value;
+            @endphp
+
+            <div class="mb-4 flex flex-wrap gap-6 text-sm">
+                <div>
+                    <span class="text-gray-500">Current</span>
+                    <span class="font-semibold text-gray-800">${{ number_format($current->value, 2) }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">First recorded</span>
+                    <span class="font-semibold text-gray-800">${{ number_format($first->value, 2) }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Change</span>
+                    <span class="font-semibold @if($change > 0) text-green-700 @elseif($change < 0) text-red-700 @else text-gray-800 @endif">
+                        @if($change > 0)+@endif{{ number_format($change, 2) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+                @foreach($item->valuations as $valuation)
+                    <div class="p-4 hover:bg-gray-50 flex items-center justify-between">
+                        <div>
+                            <span class="font-semibold text-gray-800">${{ number_format($valuation->value, 2) }}</span>
+                            <span class="text-sm text-gray-500 ml-2">{{ $valuation->valued_at->format('M j, Y') }}</span>
+                        </div>
+                        @if($valuation->source)
+                            <span class="text-sm text-gray-500">{{ $valuation->source }}</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-gray-500 text-center py-8">No valuation history yet. It's recorded automatically when an estimated value is set.</p>
         @endif
     </div>
 
