@@ -38,24 +38,18 @@ Production deployment is **not** covered here — see [`DEPLOYMENT.md`](DEPLOYME
 
 **Prerequisite:** [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
-1. **Create your env file:**
+1. **Create your env file** from the Docker template. Its DB values are already
+   wired for the Sail containers (`DB_HOST=mysql`, `DB_USERNAME=sail`,
+   `DB_PASSWORD=password`) — the container reaches MySQL by its service name `mysql`
+   (not `127.0.0.1`), and MySQL rejects a user literally named `root`:
 
    ```bash
-   cp .env.example .env
+   cp .env.example.docker .env
    ```
 
-2. **Point `.env` at the Docker MySQL service.** Edit these values
-   (the container reaches MySQL by its service name `mysql`, not `127.0.0.1`, and
-   MySQL rejects a user literally named `root`):
+   (For native/production config, copy `.env.example` instead — see `DEPLOYMENT.md`.)
 
-   ```dotenv
-   DB_HOST=mysql
-   DB_DATABASE=lasater_inventory
-   DB_USERNAME=sail
-   DB_PASSWORD=password
-   ```
-
-3. **Install PHP dependencies** (this pulls in Sail itself). If you don't have
+2. **Install PHP dependencies** (this pulls in Sail itself). If you don't have
    PHP/Composer locally, bootstrap it through a throwaway container:
 
    ```bash
@@ -67,23 +61,28 @@ Production deployment is **not** covered here — see [`DEPLOYMENT.md`](DEPLOYME
 
    (Or just `composer install` if you have PHP 8.2+ and Composer on your host.)
 
-4. **Start the containers:**
+3. **Start the containers:**
 
    ```bash
    ./vendor/bin/sail up -d
    ```
 
-5. **Initialize the app:**
+4. **Initialize the app:**
 
    ```bash
    ./vendor/bin/sail artisan key:generate
    ./vendor/bin/sail artisan migrate --seed
    ./vendor/bin/sail npm install
-   ./vendor/bin/sail npm run dev
+   ./vendor/bin/sail npm run dev   # long-running (Vite HMR) — leave it in its own shell
    ```
 
-6. Visit **http://localhost**. The seeder creates a default admin
+5. Visit **http://localhost**. The seeder creates a default admin
    (`admin` / `Admin123!`) — change this password immediately after first login.
+
+   > **Port 80 already in use?** Set `APP_PORT` (and match `APP_URL`) in `.env`
+   > before `sail up`, e.g. `APP_PORT=8080` and `APP_URL=http://localhost:8080`,
+   > then visit that URL instead. `APP_URL` must include the non-default port or
+   > generated links and assets will point at the wrong place.
 
 > **Tip:** add a shell alias so you can type `sail` instead of `./vendor/bin/sail`:
 > `alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'`
