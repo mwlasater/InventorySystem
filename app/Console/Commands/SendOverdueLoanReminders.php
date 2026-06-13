@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Transaction;
 use App\Notifications\OverdueLoanReminder;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SendOverdueLoanReminders extends Command
 {
@@ -28,6 +30,7 @@ class SendOverdueLoanReminders extends Command
 
         $sent = 0;
         $skipped = 0;
+        $failed = 0;
 
         foreach ($loans as $loan) {
             $creator = $loan->creator;
@@ -39,14 +42,23 @@ class SendOverdueLoanReminders extends Command
                 continue;
             }
 
-            $creator->notify(new OverdueLoanReminder($loan));
-            $loan->forceFill(['overdue_reminder_sent_at' => now()])->save();
-            $sent++;
+            try {
+                // Synchronous send: only stamp the loan once delivery succeeds, so
+                // a failed send (e.g. SMTP down) is retried on the next daily run
+                // rather than being silently marked as reminded.
+                $creator->notify(new OverdueLoanReminder($loan));
+                $loan->forceFill(['overdue_reminder_sent_at' => now()])->save();
+                $sent++;
+            } catch (Throwable $e) {
+                $failed++;
+                Log::error("Failed to send overdue-loan reminder for transaction {$loan->id}: ".$e->getMessage());
+            }
         }
 
         $this->info("Sent {$sent} overdue-loan ".str('reminder')->plural($sent).
-            ($skipped ? " ({$skipped} skipped: no notifiable creator)." : '.'));
+            ($skipped ? " ({$skipped} skipped: no notifiable creator)" : '').
+            ($failed ? " ({$failed} failed to send — will retry next run)" : '').'.');
 
-        return Command::SUCCESS;
+        return $failed > 0 ? Command::FAILURE : Command::SUCCESS;
     }
 }

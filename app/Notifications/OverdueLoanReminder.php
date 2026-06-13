@@ -3,23 +3,19 @@
 namespace App\Notifications;
 
 use App\Models\Transaction;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Reminder that a loaned-out item is past its expected return date.
  *
- * Delivered on the `mail` and `database` channels. Queued (ShouldQueue) because
- * the daily scan may fan out many reminders at once and none are time-critical;
- * production processes the queue via the `queue:work --stop-when-empty` cron
- * documented in DEPLOYMENT.md.
+ * Delivered on the `mail` and `database` channels. Sent synchronously (not
+ * queued) so the scheduling command can record `overdue_reminder_sent_at` only
+ * after a send actually succeeds — a failed send is left unstamped and retried
+ * on the next daily run, instead of being silently marked as reminded.
  */
-class OverdueLoanReminder extends Notification implements ShouldQueue
+class OverdueLoanReminder extends Notification
 {
-    use Queueable;
-
     public function __construct(public Transaction $transaction) {}
 
     /**

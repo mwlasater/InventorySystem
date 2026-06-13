@@ -82,10 +82,10 @@ This runs:
 - `trash:purge` - Daily cleanup of items in trash > 90 days
 - `backup:run` - Daily database backup
 - `loans:remind-overdue` - Daily (08:00) reminder to loan creators about items
-  past their expected return date. Reminders are **queued**, so they only send
-  if the queue worker cron (see [Queue Jobs Not Processing](#queue-jobs-not-processing))
-  is also running, and require working mail settings (below). Each loan is
-  re-reminded at most once every 7 days.
+  past their expected return date. Sent inline by this scheduled command (no
+  queue worker needed); requires working mail settings (below). Each loan is
+  re-reminded at most once every 7 days, and a send that fails is retried on the
+  next run rather than skipped.
 
 ### 6. Email Delivery
 
@@ -105,8 +105,8 @@ MAIL_FROM_ADDRESS="noreply@lasater.com"
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-> Password-reset emails send synchronously (immediately). Overdue-loan reminders
-> are queued, so they additionally need the queue worker cron to be running.
+> Both password-reset emails and overdue-loan reminders send synchronously, so
+> no queue worker is required for them.
 
 Verify after deploy with `php artisan tinker`:
 ```php

@@ -113,4 +113,22 @@ class OverdueLoanReminderTest extends TestCase
         Notification::assertNothingSent();
         $this->assertNull($loan->fresh()->overdue_reminder_sent_at);
     }
+
+    public function test_failed_send_is_not_stamped_and_is_retried(): void
+    {
+        $creator = User::factory()->create();
+        $loan = $this->overdueLoan($creator);
+
+        // Make notification delivery throw (e.g. SMTP down).
+        $dispatcher = \Mockery::mock(\Illuminate\Contracts\Notifications\Dispatcher::class);
+        $dispatcher->shouldReceive('send')->andThrow(new \RuntimeException('smtp down'));
+        $this->app->instance(\Illuminate\Contracts\Notifications\Dispatcher::class, $dispatcher);
+
+        $this->artisan('loans:remind-overdue')
+            ->expectsOutputToContain('failed to send')
+            ->assertExitCode(1);
+
+        // Left unstamped so the next daily run retries instead of skipping it.
+        $this->assertNull($loan->fresh()->overdue_reminder_sent_at);
+    }
 }
