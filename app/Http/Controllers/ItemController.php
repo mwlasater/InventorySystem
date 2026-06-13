@@ -59,13 +59,14 @@ class ItemController extends Controller
     {
         $categories = Category::topLevel()->with('children')->get();
         $locations = Location::topLevel()->with(['children.children.children'])->get();
+
         return view('items.create', compact('categories', 'locations'));
     }
 
     public function store(StoreItemRequest $request, DuplicateDetectionService $duplicateService)
     {
         // Check for duplicates unless overridden
-        if (!$request->boolean('skip_duplicate_check')) {
+        if (! $request->boolean('skip_duplicate_check')) {
             $duplicates = $duplicateService->findPotentialDuplicates($request->validated());
             if ($duplicates->isNotEmpty()) {
                 return back()->withInput()->with('duplicates', $duplicates)->with('warning', 'Potential duplicates found. Review and save again to override.');
@@ -81,7 +82,7 @@ class ItemController extends Controller
 
         // Sync tags
         if ($request->has('tags')) {
-            $tagIds = collect($request->tags)->map(fn($name) => Tag::findOrCreateByName($name)->id);
+            $tagIds = collect($request->tags)->map(fn ($name) => Tag::findOrCreateByName($name)->id);
             $item->tags()->sync($tagIds);
         }
 
@@ -94,6 +95,7 @@ class ItemController extends Controller
     {
         $item->load(['category', 'location', 'tags', 'photos', 'documents', 'transactions', 'createdBy', 'modifiedBy']);
         $auditLogs = $item->auditLog()->with('user')->limit(50)->get();
+
         return view('items.show', compact('item', 'auditLogs'));
     }
 
@@ -102,6 +104,7 @@ class ItemController extends Controller
         $item->load('tags');
         $categories = Category::topLevel()->with('children')->get();
         $locations = Location::topLevel()->with(['children.children.children'])->get();
+
         return view('items.edit', compact('item', 'categories', 'locations'));
     }
 
@@ -119,7 +122,7 @@ class ItemController extends Controller
 
         // Sync tags
         if ($request->has('tags')) {
-            $tagIds = collect($request->tags)->map(fn($name) => Tag::findOrCreateByName($name)->id);
+            $tagIds = collect($request->tags)->map(fn ($name) => Tag::findOrCreateByName($name)->id);
             $item->tags()->sync($tagIds);
         } else {
             $item->tags()->detach();
@@ -141,7 +144,8 @@ class ItemController extends Controller
 
     public function toggleFavorite(Item $item)
     {
-        $item->update(['is_favorite' => !$item->is_favorite]);
+        $item->update(['is_favorite' => ! $item->is_favorite]);
+
         return back();
     }
 }

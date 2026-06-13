@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function __construct(protected ExportService $exportService)
-    {
-    }
+    public function __construct(protected ExportService $exportService) {}
 
     public function index()
     {
@@ -94,6 +92,7 @@ class ReportController extends Controller
                 'recipient' => $t->recipient_name,
                 'platform' => $t->platform,
             ]);
+
             return $this->exportService->toCsv($data, 'transaction-report.csv', ['Date', 'Item', 'Type', 'Sale Price', 'Shipping', 'Net Proceeds', 'Recipient', 'Platform']);
         }
 

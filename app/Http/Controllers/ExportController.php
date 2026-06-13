@@ -79,7 +79,7 @@ class ExportController extends Controller
             ];
         });
 
-        $filename = 'inventory-export-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'inventory-export-'.now()->format('Y-m-d').'.csv';
 
         return $this->exportService->toCsv($data, $filename, $headers);
     }

@@ -22,7 +22,7 @@ class ActivityLogController extends Controller
         }
 
         if ($request->filled('entity_type')) {
-            $query->where('entity_type', 'like', '%' . $request->entity_type . '%');
+            $query->where('entity_type', 'like', '%'.$request->entity_type.'%');
         }
 
         if ($request->filled('date_from')) {
@@ -30,14 +30,14 @@ class ActivityLogController extends Controller
         }
 
         if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+            $query->where('created_at', '<=', $request->date_to.' 23:59:59');
         }
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('old_values', 'like', '%' . $search . '%')
-                  ->orWhere('new_values', 'like', '%' . $search . '%');
+                $q->where('old_values', 'like', '%'.$search.'%')
+                    ->orWhere('new_values', 'like', '%'.$search.'%');
             });
         }
 

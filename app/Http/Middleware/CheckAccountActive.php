@@ -11,7 +11,7 @@ class CheckAccountActive
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && !$request->user()->is_active) {
+        if ($request->user() && ! $request->user()->is_active) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

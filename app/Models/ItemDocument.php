@@ -37,12 +37,13 @@ class ItemDocument extends Model
     {
         $bytes = $this->file_size;
         if ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 1) . ' MB';
+            return number_format($bytes / 1048576, 1).' MB';
         }
         if ($bytes >= 1024) {
-            return number_format($bytes / 1024, 0) . ' KB';
+            return number_format($bytes / 1024, 0).' KB';
         }
-        return $bytes . ' B';
+
+        return $bytes.' B';
     }
 
     public function isViewable(): bool

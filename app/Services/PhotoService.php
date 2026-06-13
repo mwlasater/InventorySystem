@@ -44,7 +44,7 @@ class PhotoService
 
         $image->scaleDown(width: $size, height: $size);
 
-        $filename = pathinfo($file->hashName(), PATHINFO_FILENAME) . "_{$suffix}.jpg";
+        $filename = pathinfo($file->hashName(), PATHINFO_FILENAME)."_{$suffix}.jpg";
         $path = "items/{$itemId}/photos/thumbs/{$filename}";
 
         Storage::disk('public')->put($path, $image->toJpeg(80)->toString());
@@ -108,5 +108,6 @@ class PhotoService
     }
 
     public const MAX_PHOTOS_PER_ITEM = 20;
+
     public const MAX_FILE_SIZE_MB = 10;
 }
