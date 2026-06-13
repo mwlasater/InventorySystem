@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use App\Traits\TracksValuation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Item extends Model
 {
-    use Auditable, HasFactory;
+    use Auditable, HasFactory, TracksValuation;
 
     const DISPOSITION_STATUSES = ['sold', 'given_away', 'traded', 'loaned_out', 'lost', 'disposed'];
 
@@ -98,6 +99,13 @@ class Item extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class)->orderBy('transaction_date', 'desc');
+    }
+
+    public function valuations(): HasMany
+    {
+        return $this->hasMany(ItemValuation::class)
+            ->orderByDesc('valued_at')
+            ->orderByDesc('id');
     }
 
     public function createdBy(): BelongsTo
