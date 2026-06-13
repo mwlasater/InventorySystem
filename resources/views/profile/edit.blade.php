@@ -76,5 +76,19 @@
             </button>
         </form>
     </div>
+
+    <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Two-Factor Authentication</h3>
+        <p class="text-sm text-gray-600 mb-4">
+            @if($user->hasTwoFactorEnabled())
+                Two-factor authentication is <span class="font-semibold text-green-700">enabled</span> on your account.
+            @else
+                Add an extra layer of security by requiring a code from your authenticator app at login.
+            @endif
+        </p>
+        <a href="{{ route('two-factor.show') }}" class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md transition-colors">
+            Manage two-factor authentication
+        </a>
+    </div>
 </div>
 @endsection
