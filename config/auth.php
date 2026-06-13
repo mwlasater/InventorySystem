@@ -20,6 +20,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Two-Factor Authentication
+    |--------------------------------------------------------------------------
+    |
+    | When enforce_for_admins is true, admin users without 2FA enabled are
+    | redirected to the 2FA setup page until they enrol. Off by default so
+    | enabling it is a deliberate, documented decision.
+    |
+    */
+
+    'two_factor' => [
+        'enforce_for_admins' => env('ENFORCE_2FA_FOR_ADMINS', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Guards
     |--------------------------------------------------------------------------
     |
