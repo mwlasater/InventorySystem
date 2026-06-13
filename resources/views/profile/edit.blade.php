@@ -90,5 +90,15 @@
             Manage two-factor authentication
         </a>
     </div>
+
+    <div class="bg-white rounded-lg shadow p-6 mt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">API Tokens</h3>
+        <p class="text-sm text-gray-600 mb-4">
+            Create personal access tokens to use the API from a mobile app or external integration.
+        </p>
+        <a href="{{ route('api-tokens.index') }}" class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md transition-colors">
+            Manage API tokens
+        </a>
+    </div>
 </div>
 @endsection
