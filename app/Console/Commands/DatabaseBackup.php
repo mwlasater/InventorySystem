@@ -46,6 +46,15 @@ class DatabaseBackup extends Command
             return Command::FAILURE;
         }
 
+        // Integrity check: guard against a silently empty/truncated dump (e.g. a
+        // mysqldump that exits 0 but wrote nothing usable).
+        if (! $this->verifyDump($sqlPath)) {
+            $this->error('Backup verification failed; the dump is empty or has no table definitions.');
+            @unlink($sqlPath);
+
+            return Command::FAILURE;
+        }
+
         $this->info("Database backup created: {$sqlFilename}");
 
         // Optionally include media files in a zip archive
@@ -83,6 +92,29 @@ class DatabaseBackup extends Command
         $this->info("Backup rotation: {$rotated} old backup(s) deleted.");
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Lightweight integrity check: the dump must be non-empty and contain at
+     * least one CREATE TABLE statement.
+     */
+    private function verifyDump(string $sqlPath): bool
+    {
+        if (! is_file($sqlPath) || filesize($sqlPath) === 0) {
+            return false;
+        }
+
+        $handle = fopen($sqlPath, 'r');
+        $found = false;
+        while (($line = fgets($handle)) !== false) {
+            if (stripos($line, 'CREATE TABLE') !== false) {
+                $found = true;
+                break;
+            }
+        }
+        fclose($handle);
+
+        return $found;
     }
 
     /**
