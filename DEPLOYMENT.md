@@ -157,9 +157,24 @@ php artisan backup:run --with-media # Database + uploaded files
 Backups are stored in `storage/app/backups/` with 30-day rotation.
 
 ### Restore from Backup
+
+Use the `backup:restore` command (reads DB credentials from `.env`, verifies the
+dump, and takes a safety backup of the current database first):
+
 ```bash
-mysql -u user -p database_name < storage/app/backups/backup-YYYY-MM-DD-HHMMSS.sql
+php artisan backup:restore                         # pick from a list of backups
+php artisan backup:restore backup-YYYY-MM-DD-HHMMSS.sql
+php artisan backup:restore backup-YYYY-MM-DD-HHMMSS.zip   # --with-media archives too
 ```
+
+Useful flags:
+- `--dry-run` — validate the backup and print the restore command without changing anything
+- `--force` — skip the confirmation prompt (required for non-interactive/cron use)
+- `--no-safety-backup` — skip the pre-restore safety dump
+
+The command refuses to restore an empty dump or one with no `CREATE TABLE`
+statements. A raw `mysql -u user -p database_name < backup.sql` import still works
+if you prefer to do it by hand.
 
 ## Troubleshooting
 
