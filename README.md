@@ -1,59 +1,104 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Lasater Salvage Inventory
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A web-based inventory management system for cataloging, organizing, and valuing a
+collection of physical items — with photos, documents, transactions, QR labels,
+barcode lookup, reporting, CSV import/export, multi-user roles, and a full audit trail.
 
-## About Laravel
+See [`USER_MANUAL.md`](USER_MANUAL.md) for end-user documentation.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tech stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Backend:** PHP 8.2+, Laravel 12, Eloquent ORM
+- **Frontend:** Blade, Tailwind CSS 4, Alpine.js, Chart.js, html5-qrcode
+- **Build:** Vite 7 (`laravel-vite-plugin`)
+- **Database:** MySQL 8 (production and Docker dev); SQLite in-memory for tests
+- **Notable packages:** `barryvdh/laravel-dompdf` (PDF reports), `simplesoftwareio/simple-qrcode`, `intervention/image-laravel`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Environments: dev in Docker, production native
 
-## Learning Laravel
+The same codebase runs in both places — only `.env` differs, so nothing in the
+PHP changes between environments.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| | Local development | Production |
+|---|---|---|
+| Runtime | **Docker** (Laravel Sail) | **Native** on DreamHost (no Docker) |
+| PHP | 8.2 container | DreamHost PHP 8.2+ |
+| Database | MySQL 8.0 container | DreamHost MySQL 8 |
+| Web server | Sail (built-in) | Apache + `.htaccess` |
+| Frontend assets | `sail npm run dev` (Vite HMR) | pre-built `npm run build` |
+| Config source | `.env` (local) | `.env` (server) |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Container versions in [`docker-compose.yml`](docker-compose.yml) are pinned to
+**PHP 8.2 / MySQL 8.0** to match the DreamHost runtime, so dev doesn't silently
+drift ahead of production.
 
-## Laravel Sponsors
+Production deployment is **not** covered here — see [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Local development (Docker)
 
-### Premium Partners
+**Prerequisite:** [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. **Create your env file** from the Docker template. Its DB values are already
+   wired for the Sail containers (`DB_HOST=mysql`, `DB_USERNAME=sail`,
+   `DB_PASSWORD=password`) — the container reaches MySQL by its service name `mysql`
+   (not `127.0.0.1`), and MySQL rejects a user literally named `root`:
 
-## Contributing
+   ```bash
+   cp .env.example.docker .env
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   (For native/production config, copy `.env.example` instead — see `DEPLOYMENT.md`.)
 
-## Code of Conduct
+2. **Install PHP dependencies** (this pulls in Sail itself). If you don't have
+   PHP/Composer locally, bootstrap it through a throwaway container:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```bash
+   docker run --rm \
+     -v "$(pwd)":/var/www/html -w /var/www/html \
+     laravelsail/php82-composer:latest \
+     composer install --ignore-platform-reqs
+   ```
 
-## Security Vulnerabilities
+   (Or just `composer install` if you have PHP 8.2+ and Composer on your host.)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Start the containers:**
 
-## License
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+4. **Initialize the app:**
+
+   ```bash
+   ./vendor/bin/sail artisan key:generate
+   ./vendor/bin/sail artisan migrate --seed
+   ./vendor/bin/sail npm install
+   ./vendor/bin/sail npm run dev   # long-running (Vite HMR) — leave it in its own shell
+   ```
+
+5. Visit **http://localhost**. The seeder creates a default admin
+   (`admin` / `Admin123!`) — change this password immediately after first login.
+
+   > **Port 80 already in use?** Set `APP_PORT` (and match `APP_URL`) in `.env`
+   > before `sail up`, e.g. `APP_PORT=8080` and `APP_URL=http://localhost:8080`,
+   > then visit that URL instead. `APP_URL` must include the non-default port or
+   > generated links and assets will point at the wrong place.
+
+> **Tip:** add a shell alias so you can type `sail` instead of `./vendor/bin/sail`:
+> `alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'`
+
+### Running tests
+
+Tests use an in-memory SQLite database (configured in `phpunit.xml`), so no MySQL
+is required:
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+## Production
+
+Production runs natively on DreamHost — Docker is not used there. Build assets
+locally (`npm run build`) and deploy via `tools/deploy.sh`. Full instructions,
+including the scheduler cron job and database backups, are in
+[`DEPLOYMENT.md`](DEPLOYMENT.md).
