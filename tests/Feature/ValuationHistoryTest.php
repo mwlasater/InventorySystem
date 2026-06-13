@@ -93,4 +93,17 @@ class ValuationHistoryTest extends TestCase
             ->assertSee('$175.00')
             ->assertSee('$100.00');
     }
+
+    public function test_summary_change_is_not_inverted_for_same_day_valuations(): void
+    {
+        // Both snapshots land on the same valued_at (no valuation_date set), so
+        // first/current must be disambiguated by id, not just date.
+        $item = Item::factory()->create(['estimated_value' => 100, 'valuation_date' => null]);
+        $item->update(['estimated_value' => 300]);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('items.show', $item))
+            ->assertOk()
+            ->assertSee('+200.00'); // current (300) − first (100), not inverted to −200
+    }
 }

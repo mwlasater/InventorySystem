@@ -270,7 +270,9 @@
         @if($item->valuations->count())
             @php
                 // Oldest -> newest for the trend direction; the list below shows newest first.
-                $series = $item->valuations->sortBy('valued_at')->values();
+                // valued_at is date-only, so tiebreak on id to keep first/current
+                // deterministic when several valuations share a day.
+                $series = $item->valuations->sortBy([['valued_at', 'asc'], ['id', 'asc']])->values();
                 $first = $series->first();
                 $current = $series->last();
                 $change = (float) $current->value - (float) $first->value;

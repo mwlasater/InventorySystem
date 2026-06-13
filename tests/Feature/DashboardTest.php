@@ -23,6 +23,21 @@ class DashboardTest extends TestCase
             ->assertViewHas('itemsByCategory');
     }
 
+    public function test_categories_with_no_active_items_are_excluded(): void
+    {
+        $withItems = Category::factory()->create(['name' => 'Populated']);
+        Item::factory()->create(['category_id' => $withItems->id]);
+        $empty = Category::factory()->create(['name' => 'Empty']);
+
+        $names = $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->viewData('itemsByCategory')
+            ->pluck('name');
+
+        $this->assertTrue($names->contains('Populated'));
+        $this->assertFalse($names->contains('Empty'), 'Empty categories should be excluded from the breakdown');
+    }
+
     public function test_chart_data_endpoint_returns_category_breakdowns(): void
     {
         $category = Category::factory()->create(['name' => 'Tools']);
