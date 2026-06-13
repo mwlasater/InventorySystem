@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function __construct(protected TransactionService $transactionService)
-    {
-    }
+    public function __construct(protected TransactionService $transactionService) {}
 
     public function create(Item $item, Request $request)
     {
@@ -27,7 +25,7 @@ class TransactionController extends Controller
     public function store(Request $request, Item $item)
     {
         $validated = $request->validate([
-            'transaction_type' => 'required|in:' . implode(',', array_keys(Transaction::TYPE_LABELS)),
+            'transaction_type' => 'required|in:'.implode(',', array_keys(Transaction::TYPE_LABELS)),
             'transaction_date' => 'required|date|before_or_equal:today',
             'recipient_name' => 'nullable|string|max:255',
             'recipient_contact' => 'nullable|string|max:255',
@@ -47,6 +45,6 @@ class TransactionController extends Controller
         $this->transactionService->create($item, $validated);
 
         return redirect()->route('items.show', $item)
-            ->with('success', 'Transaction recorded. Item status updated to ' . $item->fresh()->status_label . '.');
+            ->with('success', 'Transaction recorded. Item status updated to '.$item->fresh()->status_label.'.');
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class PurgeExpiredTrash extends Command
 {
     protected $signature = 'trash:purge';
+
     protected $description = 'Permanently delete items that have been in trash for more than 90 days';
 
     public function handle(): int
@@ -25,6 +26,7 @@ class PurgeExpiredTrash extends Command
         }
 
         $this->info("Purged {$count} expired trash items.");
+
         return Command::SUCCESS;
     }
 }

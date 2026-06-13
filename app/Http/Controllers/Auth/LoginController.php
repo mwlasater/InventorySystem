@@ -28,11 +28,11 @@ class LoginController extends Controller
 
         if ($user && $user->isLocked()) {
             return back()->withErrors([
-                'username' => 'Account is locked. Try again after ' . $user->locked_until->diffForHumans(),
+                'username' => 'Account is locked. Try again after '.$user->locked_until->diffForHumans(),
             ])->withInput($request->only('username'));
         }
 
-        if ($user && !$user->is_active) {
+        if ($user && ! $user->is_active) {
             return back()->withErrors([
                 'username' => 'Your account has been deactivated.',
             ])->withInput($request->only('username'));

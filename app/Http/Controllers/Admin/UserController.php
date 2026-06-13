@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
-use App\Rules\PasswordComplexity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -15,12 +14,14 @@ class UserController extends Controller
     public function index()
     {
         $users = User::orderBy('username')->paginate(25);
+
         return view('admin.users.index', compact('users'));
     }
 
     public function create()
     {
         $permissions = config('permissions.available');
+
         return view('admin.users.create', compact('permissions'));
     }
 
@@ -34,7 +35,7 @@ class UserController extends Controller
             'permissions' => 'nullable|array',
         ]);
 
-        $tempPassword = Str::random(12) . '!A1';
+        $tempPassword = Str::random(12).'!A1';
 
         $user = User::create([
             'username' => $request->username,
@@ -55,14 +56,15 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $permissions = config('permissions.available');
+
         return view('admin.users.edit', compact('user', 'permissions'));
     }
 
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'username' => 'required|string|max:50|unique:users,username,' . $user->id,
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'username' => 'required|string|max:50|unique:users,username,'.$user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'display_name' => 'nullable|string|max:100',
             'role' => 'required|in:admin,user',
             'is_active' => 'boolean',
@@ -87,7 +89,7 @@ class UserController extends Controller
 
     public function resetPassword(User $user)
     {
-        $tempPassword = Str::random(12) . '!A1';
+        $tempPassword = Str::random(12).'!A1';
 
         $user->update([
             'password' => Hash::make($tempPassword),

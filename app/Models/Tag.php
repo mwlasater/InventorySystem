@@ -30,6 +30,7 @@ class Tag extends Model
     public static function findOrCreateByName(string $name): self
     {
         $slug = Str::slug($name);
+
         return self::firstOrCreate(['slug' => $slug], ['name' => trim($name), 'slug' => $slug]);
     }
 }

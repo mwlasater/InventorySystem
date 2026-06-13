@@ -22,6 +22,7 @@ class Transaction extends Model
     ];
 
     const DISPOSITION_TYPES = ['sold', 'given_away', 'traded', 'loaned_out', 'lost', 'disposed'];
+
     const RESTORATION_TYPES = ['returned', 'status_correction'];
 
     const TYPE_TO_STATUS = [
@@ -96,7 +97,7 @@ class Transaction extends Model
         return $this->transaction_type === 'loaned_out'
             && $this->expected_return_date
             && $this->expected_return_date->isPast()
-            && !$this->item->transactions()
+            && ! $this->item->transactions()
                 ->where('transaction_type', 'returned')
                 ->where('created_at', '>', $this->created_at)
                 ->exists();

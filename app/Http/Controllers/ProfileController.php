@@ -19,7 +19,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'display_name' => 'nullable|string|max:100',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
         ]);
 
         $user->update($request->only('display_name', 'email'));
@@ -34,7 +34,7 @@ class ProfileController extends Controller
             'password' => ['required', 'confirmed', new PasswordComplexity],
         ]);
 
-        if (!Hash::check($request->current_password, auth()->user()->password)) {
+        if (! Hash::check($request->current_password, auth()->user()->password)) {
             return back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
 

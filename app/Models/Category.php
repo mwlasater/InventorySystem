@@ -41,8 +41,9 @@ class Category extends Model
     public function getFullNameAttribute(): string
     {
         if ($this->parent) {
-            return $this->parent->name . ' > ' . $this->name;
+            return $this->parent->name.' > '.$this->name;
         }
+
         return $this->name;
     }
 }

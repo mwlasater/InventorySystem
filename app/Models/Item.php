@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Item extends Model
 {
     use Auditable, HasFactory;
+
     const DISPOSITION_STATUSES = ['sold', 'given_away', 'traded', 'loaned_out', 'lost', 'disposed'];
 
     const CONDITION_LABELS = [
@@ -156,6 +157,7 @@ class Item extends Model
         if ($this->estimated_value !== null && $this->purchase_price !== null) {
             return $this->estimated_value - $this->purchase_price;
         }
+
         return null;
     }
 

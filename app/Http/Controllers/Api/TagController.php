@@ -23,6 +23,7 @@ class TagController extends Controller
     {
         $request->validate(['name' => 'required|string|max:100']);
         $tag = Tag::findOrCreateByName($request->name);
+
         return response()->json($tag);
     }
 }

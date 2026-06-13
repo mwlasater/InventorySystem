@@ -76,6 +76,7 @@ class ImportService
         $headers = fgetcsv($handle);
         if ($headers === false || $headers === null) {
             fclose($handle);
+
             return [];
         }
 
@@ -200,7 +201,7 @@ class ImportService
             );
             $rowErrors = $this->validateRow($rowData, $mappings, $rowNumber, $validStatuses, $validConditions, $validAcquisitionMethods, $existingCategories, $existingLocations);
 
-            if (!empty($rowErrors)) {
+            if (! empty($rowErrors)) {
                 $errorCount++;
                 $errors = array_merge($errors, $rowErrors);
             } else {
@@ -266,9 +267,10 @@ class ImportService
                 validateExistence: false, // Don't require existing categories/locations during import
             );
 
-            if (!empty($rowErrors)) {
+            if (! empty($rowErrors)) {
                 $skipped++;
                 $errors = array_merge($errors, $rowErrors);
+
                 continue;
             }
 
@@ -285,7 +287,7 @@ class ImportService
                     unset($itemData['_category_name']);
 
                     if ($categoryName !== '') {
-                        if (!isset($categoryCache[$categoryName])) {
+                        if (! isset($categoryCache[$categoryName])) {
                             $category = Category::create(['name' => $categoryName]);
                             $categoryCache[$categoryName] = $category->id;
                         }
@@ -299,7 +301,7 @@ class ImportService
                     unset($itemData['_location_name']);
 
                     if ($locationName !== '') {
-                        if (!isset($locationCache[$locationName])) {
+                        if (! isset($locationCache[$locationName])) {
                             // 'level' is a required (non-null, no-default) enum, so
                             // auto-created locations need an explicit level. Imported
                             // names have no hierarchy, so treat them as leaf shelves.
@@ -315,7 +317,7 @@ class ImportService
                 $item = Item::create($itemData);
 
                 // Handle tags as comma-separated string
-                if (!empty($tags)) {
+                if (! empty($tags)) {
                     $tagNames = array_map('trim', explode(',', $tags));
                     $tagIds = [];
 
@@ -327,7 +329,7 @@ class ImportService
                         $tagIds[] = $tag->id;
                     }
 
-                    if (!empty($tagIds)) {
+                    if (! empty($tagIds)) {
                         $item->tags()->attach($tagIds);
                     }
                 }
@@ -396,8 +398,8 @@ class ImportService
         }
 
         // category must be a valid category name
-        if (!empty($mapped['category'] ?? '') && $validateExistence) {
-            if (!isset($existingCategories[$mapped['category']])) {
+        if (! empty($mapped['category'] ?? '') && $validateExistence) {
+            if (! isset($existingCategories[$mapped['category']])) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'category',
@@ -407,8 +409,8 @@ class ImportService
         }
 
         // location must be a valid location name
-        if (!empty($mapped['location'] ?? '') && $validateExistence) {
-            if (!isset($existingLocations[$mapped['location']])) {
+        if (! empty($mapped['location'] ?? '') && $validateExistence) {
+            if (! isset($existingLocations[$mapped['location']])) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'location',
@@ -418,41 +420,41 @@ class ImportService
         }
 
         // status must be a valid status key
-        if (!empty($mapped['status'] ?? '')) {
-            if (!in_array($mapped['status'], $validStatuses, true)) {
+        if (! empty($mapped['status'] ?? '')) {
+            if (! in_array($mapped['status'], $validStatuses, true)) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'status',
-                    'message' => "Invalid status \"{$mapped['status']}\". Valid values: " . implode(', ', $validStatuses) . '.',
+                    'message' => "Invalid status \"{$mapped['status']}\". Valid values: ".implode(', ', $validStatuses).'.',
                 ];
             }
         }
 
         // condition_rating must be valid
-        if (!empty($mapped['condition_rating'] ?? '')) {
-            if (!in_array($mapped['condition_rating'], $validConditions, true)) {
+        if (! empty($mapped['condition_rating'] ?? '')) {
+            if (! in_array($mapped['condition_rating'], $validConditions, true)) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'condition_rating',
-                    'message' => "Invalid condition \"{$mapped['condition_rating']}\". Valid values: " . implode(', ', $validConditions) . '.',
+                    'message' => "Invalid condition \"{$mapped['condition_rating']}\". Valid values: ".implode(', ', $validConditions).'.',
                 ];
             }
         }
 
         // acquisition_method must be valid
-        if (!empty($mapped['acquisition_method'] ?? '')) {
-            if (!in_array($mapped['acquisition_method'], $validAcquisitionMethods, true)) {
+        if (! empty($mapped['acquisition_method'] ?? '')) {
+            if (! in_array($mapped['acquisition_method'], $validAcquisitionMethods, true)) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'acquisition_method',
-                    'message' => "Invalid acquisition method \"{$mapped['acquisition_method']}\". Valid values: " . implode(', ', $validAcquisitionMethods) . '.',
+                    'message' => "Invalid acquisition method \"{$mapped['acquisition_method']}\". Valid values: ".implode(', ', $validAcquisitionMethods).'.',
                 ];
             }
         }
 
         // purchase_price must be numeric
-        if (!empty($mapped['purchase_price'] ?? '')) {
-            if (!is_numeric($mapped['purchase_price'])) {
+        if (! empty($mapped['purchase_price'] ?? '')) {
+            if (! is_numeric($mapped['purchase_price'])) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'purchase_price',
@@ -462,8 +464,8 @@ class ImportService
         }
 
         // estimated_value must be numeric
-        if (!empty($mapped['estimated_value'] ?? '')) {
-            if (!is_numeric($mapped['estimated_value'])) {
+        if (! empty($mapped['estimated_value'] ?? '')) {
+            if (! is_numeric($mapped['estimated_value'])) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'estimated_value',
@@ -473,8 +475,8 @@ class ImportService
         }
 
         // quantity must be integer
-        if (!empty($mapped['quantity'] ?? '')) {
-            if (!ctype_digit($mapped['quantity']) && !preg_match('/^-?\d+$/', $mapped['quantity'])) {
+        if (! empty($mapped['quantity'] ?? '')) {
+            if (! ctype_digit($mapped['quantity']) && ! preg_match('/^-?\d+$/', $mapped['quantity'])) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'quantity',
@@ -485,7 +487,7 @@ class ImportService
 
         // Dates should be parseable
         foreach (['acquisition_date', 'valuation_date'] as $dateField) {
-            if (!empty($mapped[$dateField] ?? '')) {
+            if (! empty($mapped[$dateField] ?? '')) {
                 try {
                     Carbon::parse($mapped[$dateField]);
                 } catch (\Throwable) {
@@ -499,8 +501,8 @@ class ImportService
         }
 
         // year_manufactured should be a valid year
-        if (!empty($mapped['year_manufactured'] ?? '')) {
-            if (!preg_match('/^\d{4}$/', $mapped['year_manufactured'])) {
+        if (! empty($mapped['year_manufactured'] ?? '')) {
+            if (! preg_match('/^\d{4}$/', $mapped['year_manufactured'])) {
                 $errors[] = [
                     'row' => $rowNumber,
                     'field' => 'year_manufactured',

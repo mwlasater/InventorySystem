@@ -1,26 +1,26 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\BulkItemController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\ImportController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemDocumentController;
 use App\Http\Controllers\ItemPhotoController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QrLabelController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedFilterController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TrashController;
-use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to dashboard (or login if not authenticated)

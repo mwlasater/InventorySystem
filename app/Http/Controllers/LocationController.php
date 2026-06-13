@@ -11,6 +11,7 @@ class LocationController extends Controller
     public function index()
     {
         $locations = Location::topLevel()->with(['children.children.children'])->get();
+
         return view('locations.index', compact('locations'));
     }
 
@@ -47,6 +48,7 @@ class LocationController extends Controller
     public function edit(Location $location)
     {
         $buildings = Location::buildings()->get();
+
         return view('locations.edit', compact('location', 'buildings'));
     }
 
@@ -83,6 +85,7 @@ class LocationController extends Controller
         $location->delete();
 
         AuditLog::record('delete', 'locations', $old['id'], $old, null);
+
         return redirect()->route('locations.index')->with('success', "Location '{$name}' and its children deleted.");
     }
 

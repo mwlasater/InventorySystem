@@ -13,7 +13,7 @@ class ExportService
         return response()->streamDownload(function () use ($data, $headers) {
             $handle = fopen('php://output', 'w');
 
-            if (!empty($headers)) {
+            if (! empty($headers)) {
                 fputcsv($handle, $headers);
             }
 

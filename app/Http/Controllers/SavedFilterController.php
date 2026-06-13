@@ -39,6 +39,7 @@ class SavedFilterController extends Controller
         }
 
         $filter->delete();
+
         return response()->json(['success' => true]);
     }
 }

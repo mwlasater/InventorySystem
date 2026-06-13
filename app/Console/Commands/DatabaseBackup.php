@@ -9,6 +9,7 @@ use ZipArchive;
 class DatabaseBackup extends Command
 {
     protected $signature = 'backup:run {--with-media : Include uploaded photos and documents in the backup}';
+
     protected $description = 'Create a database backup with optional media files';
 
     public function handle(): int
@@ -30,7 +31,7 @@ class DatabaseBackup extends Command
             escapeshellarg($config['host']),
             escapeshellarg($config['port']),
             escapeshellarg($config['username']),
-            empty($config['password']) ? '' : '-p' . escapeshellarg($config['password']),
+            empty($config['password']) ? '' : '-p'.escapeshellarg($config['password']),
             escapeshellarg($config['database']),
             escapeshellarg($sqlPath)
         );
@@ -40,7 +41,8 @@ class DatabaseBackup extends Command
         $process->run();
 
         if (! $process->isSuccessful()) {
-            $this->error('Database backup failed: ' . $process->getErrorOutput());
+            $this->error('Database backup failed: '.$process->getErrorOutput());
+
             return Command::FAILURE;
         }
 
@@ -51,10 +53,11 @@ class DatabaseBackup extends Command
             $zipFilename = "backup-{$timestamp}.zip";
             $zipPath = "{$backupDir}/{$zipFilename}";
 
-            $zip = new ZipArchive();
+            $zip = new ZipArchive;
 
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
                 $this->error('Could not create zip archive.');
+
                 return Command::FAILURE;
             }
 
@@ -94,7 +97,7 @@ class DatabaseBackup extends Command
 
         foreach ($iterator as $file) {
             if ($file->isFile()) {
-                $relativePath = $prefix . '/' . substr($file->getPathname(), strlen($directory) + 1);
+                $relativePath = $prefix.'/'.substr($file->getPathname(), strlen($directory) + 1);
                 $zip->addFile($file->getPathname(), $relativePath);
             }
         }
