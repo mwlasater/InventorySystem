@@ -10,43 +10,56 @@
     </div>
 </div>
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deleted</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expires</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-            @forelse($items as $item)
+<div x-data="{ selected: [] }">
+    <div x-show="selected.length > 0" x-transition class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+        <span class="text-sm text-blue-800" x-text="selected.length + ' items selected'"></span>
+        <form method="POST" action="{{ route('items.bulk.restore') }}">
+            @csrf
+            <template x-for="id in selected" :key="id"><input type="hidden" name="item_ids[]" :value="id"></template>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">Restore selected</button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
                 <tr>
-                    <td class="px-6 py-4 text-gray-800">{{ $item->name }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ $item->deleted_at?->diffForHumans() }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ $item->deleted_at?->addDays(90)->diffForHumans() }}</td>
-                    <td class="px-6 py-4 text-right space-x-2">
-                        <form method="POST" action="{{ route('trash.restore', $item) }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-green-600 hover:text-green-800 text-sm">Restore</button>
-                        </form>
-                        @if(auth()->user()->isAdmin())
-                            <form method="POST" action="{{ route('trash.force-delete', $item) }}" class="inline" onsubmit="return confirm('Permanently delete? This cannot be undone.')">
+                    <th class="px-4 py-3 w-8"></th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deleted</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expires</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @forelse($items as $item)
+                    <tr>
+                        <td class="px-4 py-4"><input type="checkbox" :value="{{ $item->id }}" x-model="selected" class="rounded border-gray-300 text-blue-600"></td>
+                        <td class="px-6 py-4 text-gray-800">{{ $item->name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ $item->deleted_at?->diffForHumans() }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ $item->deleted_at?->addDays(90)->diffForHumans() }}</td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <form method="POST" action="{{ route('trash.restore', $item) }}" class="inline">
                                 @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Delete Forever</button>
+                                <button type="submit" class="text-green-600 hover:text-green-800 text-sm">Restore</button>
                             </form>
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">Trash is empty.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-    <div class="px-6 py-3 border-t border-gray-200">{{ $items->links() }}</div>
+                            @if(auth()->user()->isAdmin())
+                                <form method="POST" action="{{ route('trash.forceDelete', $item) }}" class="inline" onsubmit="return confirm('Permanently delete? This cannot be undone.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Delete Forever</button>
+                                </form>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">Trash is empty.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+        <div class="px-6 py-3 border-t border-gray-200">{{ $items->links() }}</div>
+    </div>
 </div>
 @endsection
