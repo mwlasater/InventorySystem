@@ -47,8 +47,11 @@ return new class extends Migration
             $table->index('is_deleted');
         });
 
-        // Add FULLTEXT index after table creation (MySQL-specific)
-        DB::statement('ALTER TABLE items ADD FULLTEXT fulltext_search (name, description, notes)');
+        // Add FULLTEXT index after table creation (MySQL-specific; skipped on
+        // SQLite, which is used for the in-memory test database).
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE items ADD FULLTEXT fulltext_search (name, description, notes)');
+        }
 
         // Create item_tags pivot table (deferred from Phase 2)
         Schema::create('item_tags', function (Blueprint $table) {

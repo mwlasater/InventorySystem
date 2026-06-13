@@ -19,6 +19,9 @@ class User extends Authenticatable
         'permissions',
         'is_active',
         'force_password_change',
+        'failed_login_attempts',
+        'locked_until',
+        'last_login_at',
     ];
 
     protected $hidden = [

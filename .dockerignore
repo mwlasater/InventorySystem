@@ -1,0 +1,20 @@
+# Keep the build context lean. Note: local dev bind-mounts the source
+# (docker-compose.yml: .:/var/www/html), so this only matters if an image
+# ever COPYs the source — kept here as a guardrail.
+.git
+.github
+node_modules
+vendor
+public/build
+public/hot
+storage/app/private/*
+storage/app/public/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+.env
+.env.*
+!.env.example
+!.env.example.docker
+.phpunit.result.cache

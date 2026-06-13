@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Item extends Model
 {
-    use Auditable;
+    use Auditable, HasFactory;
     const DISPOSITION_STATUSES = ['sold', 'given_away', 'traded', 'loaned_out', 'lost', 'disposed'];
 
     const CONDITION_LABELS = [

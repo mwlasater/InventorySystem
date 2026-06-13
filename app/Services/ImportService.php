@@ -300,7 +300,10 @@ class ImportService
 
                     if ($locationName !== '') {
                         if (!isset($locationCache[$locationName])) {
-                            $location = Location::create(['name' => $locationName]);
+                            // 'level' is a required (non-null, no-default) enum, so
+                            // auto-created locations need an explicit level. Imported
+                            // names have no hierarchy, so treat them as leaf shelves.
+                            $location = Location::create(['name' => $locationName, 'level' => 'shelf']);
                             $locationCache[$locationName] = $location->id;
                         }
                         $itemData['location_id'] = $locationCache[$locationName];

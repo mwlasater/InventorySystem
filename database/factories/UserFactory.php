@@ -12,9 +12,9 @@ use Illuminate\Support\Str;
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * The shared hash of the default password, computed once.
      */
-    protected static ?string $password;
+    protected static ?string $password = null;
 
     /**
      * Define the model's default state.
@@ -24,21 +24,39 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'username' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'display_name' => fake()->name(),
             'password' => static::$password ??= Hash::make('password'),
+            'role' => 'user',
+            'permissions' => [],
+            'is_active' => true,
+            'force_password_change' => false,
+            'failed_login_attempts' => 0,
             'remember_token' => Str::random(10),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(fn (array $attributes) => ['role' => 'admin']);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_active' => false]);
+    }
+
+    public function mustChangePassword(): static
+    {
+        return $this->state(fn (array $attributes) => ['force_password_change' => true]);
+    }
+
+    /**
+     * Set a known plaintext password (so tests can log in with it).
+     */
+    public function password(string $plain): static
+    {
+        return $this->state(fn (array $attributes) => ['password' => Hash::make($plain)]);
     }
 }

@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('Admin123!'),
                 'role' => 'admin',
                 'is_active' => true,
-                'force_password_change' => false,
+                'force_password_change' => true,
             ]
         );
     }
