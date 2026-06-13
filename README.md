@@ -77,7 +77,7 @@ Production deployment is **not** covered here — see [`DEPLOYMENT.md`](DEPLOYME
    ```
 
 5. Visit **http://localhost**. The seeder creates a default admin
-   (`admin` / `Admin123!`) — change this password immediately after first login.
+   (`admin` / `Admin123!`) — you'll be required to change this password on first login.
 
    > **Port 80 already in use?** Set `APP_PORT` (and match `APP_URL`) in `.env`
    > before `sail up`, e.g. `APP_PORT=8080` and `APP_URL=http://localhost:8080`,

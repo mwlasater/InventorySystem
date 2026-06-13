@@ -11,9 +11,15 @@ return new class extends Migration
         Schema::create('audit_log', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->string('entity_type', 50);
+            $table->string('entity_type', 100);
             $table->unsignedInteger('entity_id');
-            $table->enum('action', ['create', 'update', 'delete', 'restore', 'login', 'logout', 'failed_login']);
+            // Plain string rather than an enum: audit actions come from two
+            // sources with different conventions — controllers emit 'create' /
+            // 'update' / 'delete' / 'restore' / login events, while the Auditable
+            // model trait emits past-tense 'created' / 'updated' / 'deleted' and
+            // TransactionService emits 'transaction_created'. An enum rejected the
+            // latter set (CHECK violation on SQLite, silent corruption on MySQL).
+            $table->string('action', 50);
             $table->json('old_values')->nullable();
             $table->json('new_values')->nullable();
             $table->string('ip_address', 45)->nullable();

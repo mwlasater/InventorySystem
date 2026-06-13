@@ -111,7 +111,8 @@ npm run build  # if assets changed
 - **Username:** `admin`
 - **Password:** `Admin123!`
 
-**Change the admin password immediately after first login.**
+**You will be required to change the admin password on first login** (the seeder
+creates the account with `force_password_change` enabled).
 
 ## Backup & Recovery
 

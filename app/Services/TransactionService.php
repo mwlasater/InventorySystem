@@ -34,7 +34,8 @@ class TransactionService
             // Audit log
             AuditLog::record(
                 'transaction_created',
-                $item,
+                'items',
+                $item->id,
                 ['status' => $oldStatus],
                 ['status' => $newStatus, 'transaction_type' => $transaction->transaction_type]
             );
