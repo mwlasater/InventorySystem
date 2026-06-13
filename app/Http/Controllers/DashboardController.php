@@ -39,7 +39,7 @@ class DashboardController extends Controller
             ->pluck('count', 'status');
 
         $itemsByCategory = Category::withCount(['items' => fn ($q) => $q->active()])
-            ->having('items_count', '>', 0)
+            ->whereHas('items', fn ($q) => $q->active())
             ->orderByDesc('items_count')
             ->limit(10)
             ->get();
@@ -54,7 +54,7 @@ class DashboardController extends Controller
     public function chartData()
     {
         $itemsByCategory = Category::withCount(['items' => fn ($q) => $q->active()])
-            ->having('items_count', '>', 0)
+            ->whereHas('items', fn ($q) => $q->active())
             ->orderByDesc('items_count')
             ->limit(10)
             ->get()

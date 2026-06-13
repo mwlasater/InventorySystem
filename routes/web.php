@@ -147,6 +147,8 @@ Route::middleware('auth')->group(function () {
 
         // Bulk operations
         Route::post('items-bulk', [BulkItemController::class, 'update'])->name('items.bulk');
+        Route::post('items-bulk/restore', [BulkItemController::class, 'restore'])->name('items.bulk.restore');
+        Route::post('items-bulk/export', [BulkItemController::class, 'export'])->name('items.bulk.export');
 
         // Admin routes
         Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
