@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 // Scheduled tasks
 Schedule::command('trash:purge')->daily();
 Schedule::command('backup:run')->daily();
+Schedule::command('loans:remind-overdue')->dailyAt('08:00');
