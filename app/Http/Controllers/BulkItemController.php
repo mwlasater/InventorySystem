@@ -26,7 +26,8 @@ class BulkItemController extends Controller
                     $item->update(['status' => $request->status, 'modified_by' => auth()->id()]);
                     AuditLog::record('update', 'items', $item->id, $old, $item->fresh()->toArray());
                 }
-                return back()->with('success', count($items) . ' items updated.');
+
+                return back()->with('success', count($items).' items updated.');
 
             case 'change_category':
                 $request->validate(['category_id' => 'required|exists:categories,id']);
@@ -35,7 +36,8 @@ class BulkItemController extends Controller
                     $item->update(['category_id' => $request->category_id, 'modified_by' => auth()->id()]);
                     AuditLog::record('update', 'items', $item->id, $old, $item->fresh()->toArray());
                 }
-                return back()->with('success', count($items) . ' items updated.');
+
+                return back()->with('success', count($items).' items updated.');
 
             case 'change_location':
                 $request->validate(['location_id' => 'required|exists:locations,id']);
@@ -44,7 +46,8 @@ class BulkItemController extends Controller
                     $item->update(['location_id' => $request->location_id, 'modified_by' => auth()->id()]);
                     AuditLog::record('update', 'items', $item->id, $old, $item->fresh()->toArray());
                 }
-                return back()->with('success', count($items) . ' items updated.');
+
+                return back()->with('success', count($items).' items updated.');
 
             case 'delete':
                 foreach ($items as $item) {
@@ -52,7 +55,8 @@ class BulkItemController extends Controller
                     $item->softDelete();
                     AuditLog::record('delete', 'items', $item->id, $old, null);
                 }
-                return back()->with('success', count($items) . ' items moved to trash.');
+
+                return back()->with('success', count($items).' items moved to trash.');
         }
     }
 }

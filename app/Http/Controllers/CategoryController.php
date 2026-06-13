@@ -11,12 +11,14 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::topLevel()->with('children')->get();
+
         return view('categories.index', compact('categories'));
     }
 
     public function create()
     {
         $parentCategories = Category::topLevel()->get();
+
         return view('categories.create', compact('parentCategories'));
     }
 
@@ -44,6 +46,7 @@ class CategoryController extends Controller
     public function edit(Category $category)
     {
         $parentCategories = Category::topLevel()->where('id', '!=', $category->id)->get();
+
         return view('categories.edit', compact('category', 'parentCategories'));
     }
 

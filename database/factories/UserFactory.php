@@ -59,4 +59,17 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => ['password' => Hash::make($plain)]);
     }
+
+    /**
+     * A fully-enrolled 2FA user. Pass the known secret so tests can generate
+     * valid TOTP codes for it.
+     */
+    public function withTwoFactor(string $secret, array $recoveryCodes = ['AAAAA-BBBBB']): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'two_factor_secret' => $secret,
+            'two_factor_recovery_codes' => $recoveryCodes,
+            'two_factor_confirmed_at' => now(),
+        ]);
+    }
 }

@@ -1,26 +1,28 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
+use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\BulkItemController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\ImportController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemDocumentController;
 use App\Http\Controllers\ItemPhotoController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QrLabelController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedFilterController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TrashController;
-use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to dashboard (or login if not authenticated)
@@ -31,9 +33,16 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login']);
     Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+        ->middleware('throttle:6,1')->name('password.email');
     Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::post('reset-password', [ResetPasswordController::class, 'reset'])
+        ->middleware('throttle:6,1')->name('password.update');
+
+    // Second login step for 2FA users (reachable while not yet authenticated).
+    Route::get('two-factor-challenge', [TwoFactorChallengeController::class, 'show'])->name('two-factor.challenge');
+    Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'store'])
+        ->middleware('throttle:6,1')->name('two-factor.challenge.store');
 });
 
 // Authenticated routes
@@ -45,13 +54,20 @@ Route::middleware('auth')->group(function () {
     Route::put('password/change', [ForcePasswordChangeController::class, 'update'])->name('password.force-change.update');
 
     // All other authenticated routes require active account + no forced password change
-    Route::middleware(['check.active', 'force.password'])->group(function () {
+    Route::middleware(['check.active', 'force.password', '2fa.required'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Profile
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+        // Two-factor authentication management
+        Route::get('two-factor', [TwoFactorController::class, 'show'])->name('two-factor.show');
+        Route::post('two-factor/enable', [TwoFactorController::class, 'enable'])->name('two-factor.enable');
+        Route::post('two-factor/confirm', [TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+        Route::post('two-factor/recovery-codes', [TwoFactorController::class, 'regenerateRecoveryCodes'])->name('two-factor.recovery-codes');
+        Route::delete('two-factor', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
 
         // Categories
         Route::resource('categories', CategoryController::class)->except(['show']);

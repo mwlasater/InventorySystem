@@ -81,8 +81,40 @@ Add via DreamHost Panel or crontab:
 This runs:
 - `trash:purge` - Daily cleanup of items in trash > 90 days
 - `backup:run` - Daily database backup
+- `loans:remind-overdue` - Daily (08:00) reminder to loan creators about items
+  past their expected return date. Sent inline by this scheduled command (no
+  queue worker needed); requires working mail settings (below). Each loan is
+  re-reminded at most once every 7 days, and a send that fails is retried on the
+  next run rather than skipped.
 
-### 6. SSL Certificate
+### 6. Email Delivery
+
+The app sends email for **password resets** and **overdue-loan reminders**. Both
+are non-functional until a real transport is configured — `tools/.env.production.example`
+ships DreamHost SMTP defaults; set a real `MAIL_PASSWORD` and confirm the sending
+address:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.dreamhost.com
+MAIL_PORT=465
+MAIL_USERNAME=noreply@lasater.com
+MAIL_PASSWORD=CHANGE_ME
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS="noreply@lasater.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+> Both password-reset emails and overdue-loan reminders send synchronously, so
+> no queue worker is required for them.
+
+Verify after deploy with `php artisan tinker`:
+```php
+Notification::route('mail', 'you@example.com')
+    ->notify(new \App\Notifications\ResetPasswordNotification('test-token'));
+```
+
+### 7. SSL Certificate
 
 DreamHost provides free Let's Encrypt SSL. Enable it under **Manage Domains > Secure Hosting**.
 
@@ -125,9 +157,24 @@ php artisan backup:run --with-media # Database + uploaded files
 Backups are stored in `storage/app/backups/` with 30-day rotation.
 
 ### Restore from Backup
+
+Use the `backup:restore` command (reads DB credentials from `.env`, verifies the
+dump, and takes a safety backup of the current database first):
+
 ```bash
-mysql -u user -p database_name < storage/app/backups/backup-YYYY-MM-DD-HHMMSS.sql
+php artisan backup:restore                         # pick from a list of backups
+php artisan backup:restore backup-YYYY-MM-DD-HHMMSS.sql
+php artisan backup:restore backup-YYYY-MM-DD-HHMMSS.zip   # --with-media archives too
 ```
+
+Useful flags:
+- `--dry-run` — validate the backup and print the restore command without changing anything
+- `--force` — skip the confirmation prompt (required for non-interactive/cron use)
+- `--no-safety-backup` — skip the pre-restore safety dump
+
+The command refuses to restore an empty dump or one with no `CREATE TABLE`
+statements. A raw `mysql -u user -p database_name < backup.sql` import still works
+if you prefer to do it by hand.
 
 ## Troubleshooting
 

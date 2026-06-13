@@ -22,6 +22,7 @@ class Transaction extends Model
     ];
 
     const DISPOSITION_TYPES = ['sold', 'given_away', 'traded', 'loaned_out', 'lost', 'disposed'];
+
     const RESTORATION_TYPES = ['returned', 'status_correction'];
 
     const TYPE_TO_STATUS = [
@@ -46,6 +47,7 @@ class Transaction extends Model
         'platform',
         'net_proceeds',
         'expected_return_date',
+        'overdue_reminder_sent_at',
         'notes',
         'created_by',
     ];
@@ -55,10 +57,24 @@ class Transaction extends Model
         return [
             'transaction_date' => 'date',
             'expected_return_date' => 'date',
+            'overdue_reminder_sent_at' => 'datetime',
             'sale_price' => 'decimal:2',
             'shipping_cost' => 'decimal:2',
             'net_proceeds' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Loans that are past their expected return date and still loaned out.
+     * Mirrors the dashboard's overdue query: a later 'returned' transaction
+     * flips the item's status back to in_collection, which excludes it here.
+     */
+    public function scopeOverdueLoans($query)
+    {
+        return $query->where('transaction_type', 'loaned_out')
+            ->whereNotNull('expected_return_date')
+            ->where('expected_return_date', '<', now())
+            ->whereHas('item', fn ($q) => $q->where('status', 'loaned_out'));
     }
 
     public function item(): BelongsTo
@@ -96,7 +112,7 @@ class Transaction extends Model
         return $this->transaction_type === 'loaned_out'
             && $this->expected_return_date
             && $this->expected_return_date->isPast()
-            && !$this->item->transactions()
+            && ! $this->item->transactions()
                 ->where('transaction_type', 'returned')
                 ->where('created_at', '>', $this->created_at)
                 ->exists();

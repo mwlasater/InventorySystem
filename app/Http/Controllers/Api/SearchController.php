@@ -18,7 +18,7 @@ class SearchController extends Controller
 
         $items = Item::active()
             ->where(function ($query) use ($search) {
-                $query->whereRaw('MATCH(name, description, notes) AGAINST(? IN BOOLEAN MODE)', [$search . '*'])
+                $query->whereRaw('MATCH(name, description, notes) AGAINST(? IN BOOLEAN MODE)', [$search.'*'])
                     ->orWhere('barcode', $search)
                     ->orWhere('sku', $search)
                     ->orWhere('brand', 'like', "%{$search}%")

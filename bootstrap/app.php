@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminOnly::class,
             'force.password' => \App\Http\Middleware\ForcePasswordChange::class,
             'check.active' => \App\Http\Middleware\CheckAccountActive::class,
+            '2fa.required' => \App\Http\Middleware\EnsureTwoFactorEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Item;
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -15,7 +14,7 @@ class ItemFilterService
         if ($request->filled('q')) {
             $search = $request->q;
             $query->where(function ($q) use ($search) {
-                $q->whereRaw('MATCH(name, description, notes) AGAINST(? IN BOOLEAN MODE)', [$search . '*'])
+                $q->whereRaw('MATCH(name, description, notes) AGAINST(? IN BOOLEAN MODE)', [$search.'*'])
                     ->orWhere('barcode', 'like', "%{$search}%")
                     ->orWhere('sku', 'like', "%{$search}%")
                     ->orWhere('brand', 'like', "%{$search}%")
@@ -99,10 +98,10 @@ class ItemFilterService
 
         $allowedSorts = ['name', 'created_at', 'updated_at', 'estimated_value', 'purchase_price', 'acquisition_date', 'status', 'quantity'];
 
-        if (!in_array($sortField, $allowedSorts)) {
+        if (! in_array($sortField, $allowedSorts)) {
             $sortField = 'created_at';
         }
-        if (!in_array($sortDir, ['asc', 'desc'])) {
+        if (! in_array($sortDir, ['asc', 'desc'])) {
             $sortDir = 'desc';
         }
 

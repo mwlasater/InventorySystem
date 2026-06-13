@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class ItemPhotoController extends Controller
 {
-    public function __construct(protected PhotoService $photoService)
-    {
-    }
+    public function __construct(protected PhotoService $photoService) {}
 
     public function store(Request $request, Item $item)
     {
@@ -25,7 +23,7 @@ class ItemPhotoController extends Controller
 
         if ($currentCount + $newCount > PhotoService::MAX_PHOTOS_PER_ITEM) {
             return back()->withErrors([
-                'photos' => 'Maximum ' . PhotoService::MAX_PHOTOS_PER_ITEM . ' photos per item. Currently have ' . $currentCount . '.',
+                'photos' => 'Maximum '.PhotoService::MAX_PHOTOS_PER_ITEM.' photos per item. Currently have '.$currentCount.'.',
             ]);
         }
 
@@ -33,7 +31,7 @@ class ItemPhotoController extends Controller
             $this->photoService->store($file, $item->id);
         }
 
-        return back()->with('success', $newCount . ' photo(s) uploaded successfully.');
+        return back()->with('success', $newCount.' photo(s) uploaded successfully.');
     }
 
     public function destroy(Item $item, ItemPhoto $photo)

@@ -46,6 +46,7 @@ class Location extends Model
             $current = $current->parent;
             array_unshift($parts, $current->name);
         }
+
         return implode(' > ', $parts);
     }
 
@@ -55,6 +56,7 @@ class Location extends Model
         foreach ($this->children as $child) {
             $count += $child->item_count;
         }
+
         return $count;
     }
 
@@ -64,6 +66,7 @@ class Location extends Model
         foreach ($this->children as $child) {
             $ids = array_merge($ids, $child->getAllDescendantIds());
         }
+
         return $ids;
     }
 }
