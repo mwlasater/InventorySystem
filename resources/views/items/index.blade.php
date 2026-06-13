@@ -54,12 +54,31 @@
 
 {{-- Bulk Action Bar --}}
 <div x-data="{ selected: [], showBulk: false }" x-init="$watch('selected', val => showBulk = val.length > 0)">
-    <div x-show="showBulk" x-transition class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+    <div x-show="showBulk" x-transition class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex flex-wrap items-center gap-3 justify-between">
         <span class="text-sm text-blue-800" x-text="selected.length + ' items selected'"></span>
-        <div class="flex space-x-2">
+        <div class="flex flex-wrap items-center gap-2">
+            {{-- Tags: add or remove a comma-separated set across the selection --}}
+            <form method="POST" action="{{ route('items.bulk') }}" x-data="{ tagInput: '' }" class="flex items-center gap-1">
+                @csrf
+                <template x-for="id in selected" :key="id"><input type="hidden" name="item_ids[]" :value="id"></template>
+                <template x-for="t in tagInput.split(',').map(s => s.trim()).filter(Boolean)" :key="t">
+                    <input type="hidden" name="tags[]" :value="t">
+                </template>
+                <input type="text" x-model="tagInput" placeholder="tag1, tag2" class="px-2 py-1 border border-gray-300 rounded text-sm w-32">
+                <button type="submit" name="action" value="add_tags" :disabled="!tagInput.trim()" class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1 rounded text-sm">Add tags</button>
+                <button type="submit" name="action" value="remove_tags" :disabled="!tagInput.trim()" class="bg-gray-500 hover:bg-gray-600 disabled:opacity-50 text-white px-3 py-1 rounded text-sm">Remove</button>
+            </form>
+
+            {{-- Export selection to CSV --}}
+            <form method="POST" action="{{ route('items.bulk.export') }}">
+                @csrf
+                <template x-for="id in selected" :key="id"><input type="hidden" name="item_ids[]" :value="id"></template>
+                <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm">Export CSV</button>
+            </form>
+
             <form method="POST" action="{{ route('items.bulk') }}">
                 @csrf
-                <template x-for="id in selected"><input type="hidden" name="item_ids[]" :value="id"></template>
+                <template x-for="id in selected" :key="id"><input type="hidden" name="item_ids[]" :value="id"></template>
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm" onclick="return confirm('Move selected items to trash?')">Delete</button>
             </form>
