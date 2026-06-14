@@ -38,6 +38,20 @@ class DashboardTest extends TestCase
         $this->assertFalse($names->contains('Empty'), 'Empty categories should be excluded from the breakdown');
     }
 
+    public function test_sidebar_links_point_to_real_routes(): void
+    {
+        // Regression: the sidebar nav array previously hardcoded every item to
+        // route('dashboard'). Each item must resolve to its own destination.
+        $response = $this->actingAs(User::factory()->admin()->create())
+            ->get(route('dashboard'))
+            ->assertOk();
+
+        foreach (['items.index', 'items.create', 'locations.index', 'categories.index',
+            'reports.index', 'admin.users.index', 'admin.settings.index'] as $name) {
+            $response->assertSee(route($name), false);
+        }
+    }
+
     public function test_chart_data_endpoint_returns_category_breakdowns(): void
     {
         $category = Category::factory()->create(['name' => 'Tools']);
