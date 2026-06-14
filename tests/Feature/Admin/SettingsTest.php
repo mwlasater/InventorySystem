@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\AuditLog;
 use App\Models\Item;
 use App\Models\Setting;
 use App\Models\User;
@@ -106,5 +107,16 @@ class SettingsTest extends TestCase
 
         $this->actingAs($admin)->get(route('profile.edit'))
             ->assertRedirect(route('two-factor.show'));
+    }
+
+    public function test_activity_log_renders_settings_audit_without_dangling_hash(): void
+    {
+        $admin = User::factory()->admin()->create();
+        // App-level event with no entity_id (the nullable column at work).
+        AuditLog::record('update', 'settings', null, null, ['items_per_page' => 50]);
+
+        $this->actingAs($admin)->get(route('admin.activity-log'))
+            ->assertOk()
+            ->assertDontSee('settings #');
     }
 }
