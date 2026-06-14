@@ -3,17 +3,18 @@
 namespace App\Console\Commands;
 
 use App\Models\Item;
+use App\Models\Setting;
 use Illuminate\Console\Command;
 
 class PurgeExpiredTrash extends Command
 {
     protected $signature = 'trash:purge';
 
-    protected $description = 'Permanently delete items that have been in trash for more than 90 days';
+    protected $description = 'Permanently delete items that have been in trash past the configured retention period';
 
     public function handle(): int
     {
-        $cutoff = now()->subDays(90);
+        $cutoff = now()->subDays(Setting::get('trash_retention_days'));
         $items = Item::trashed()->where('deleted_at', '<', $cutoff)->get();
 
         $count = 0;

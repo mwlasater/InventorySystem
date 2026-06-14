@@ -2,14 +2,15 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * When auth.two_factor.enforce_for_admins is on, nudge admins who haven't set up
- * 2FA to the setup page. The 2FA management routes and logout are exempt so the
- * user can actually complete enrolment (or leave) without a redirect loop.
+ * When the "enforce 2FA for admins" setting is on, nudge admins who haven't set
+ * up 2FA to the setup page. The 2FA management routes and logout are exempt so
+ * the user can actually complete enrolment (or leave) without a redirect loop.
  */
 class EnsureTwoFactorEnabled
 {
@@ -19,7 +20,7 @@ class EnsureTwoFactorEnabled
 
         if (
             $user
-            && config('auth.two_factor.enforce_for_admins')
+            && Setting::get('enforce_2fa_for_admins')
             && $user->isAdmin()
             && ! $user->hasTwoFactorEnabled()
             && ! $request->routeIs('two-factor.*', 'logout')

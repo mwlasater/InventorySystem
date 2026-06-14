@@ -34,7 +34,7 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ $log->entity_type ? ucfirst($log->entity_type) . ' #' . $log->entity_id : '-' }}
+                        {{ $log->entity_type ? ucfirst($log->entity_type) . ($log->entity_id ? ' #' . $log->entity_id : '') : '-' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $log->ip_address ?? '-' }}</td>
                 </tr>
