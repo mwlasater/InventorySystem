@@ -162,6 +162,9 @@ Route::middleware('auth')->group(function () {
             Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
             Route::get('activity-log', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-log');
             Route::get('users/{user}/activity', [UserController::class, 'activityLog'])->name('users.activity');
+
+            Route::get('settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+            Route::put('settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
         });
     });
 });

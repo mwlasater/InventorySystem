@@ -71,7 +71,7 @@
                             ">{{ ucfirst($log->action) }}</span>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-800">
-                            {{ class_basename($log->entity_type ?? '') }} #{{ $log->entity_id }}
+                            {{ class_basename($log->entity_type ?? '') }}@if($log->entity_id) #{{ $log->entity_id }}@endif
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-500">
                             @if($log->action === 'updated' && $log->new_values)

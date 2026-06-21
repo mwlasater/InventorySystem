@@ -6,7 +6,7 @@
     <div>
         <a href="{{ route('items.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">&larr; Back to Inventory</a>
         <h2 class="text-2xl font-bold text-gray-800 mt-2">Trash</h2>
-        <p class="text-gray-500 text-sm">Items are permanently deleted after 90 days.</p>
+        <p class="text-gray-500 text-sm">Items are permanently deleted after {{ $retentionDays }} days.</p>
     </div>
 </div>
 
@@ -37,7 +37,7 @@
                         <td class="px-4 py-4"><input type="checkbox" :value="{{ $item->id }}" x-model="selected" class="rounded border-gray-300 text-blue-600"></td>
                         <td class="px-6 py-4 text-gray-800">{{ $item->name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">{{ $item->deleted_at?->diffForHumans() }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">{{ $item->deleted_at?->addDays(90)->diffForHumans() }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ $item->deleted_at?->addDays($retentionDays)->diffForHumans() }}</td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <form method="POST" action="{{ route('trash.restore', $item) }}" class="inline">
                                 @csrf

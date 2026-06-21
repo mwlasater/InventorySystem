@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\Item;
+use App\Models\Setting;
 
 class TrashController extends Controller
 {
     public function index()
     {
         $items = Item::trashed()->with(['category', 'location'])->orderBy('deleted_at', 'desc')->paginate(25);
+        $retentionDays = Setting::get('trash_retention_days');
 
-        return view('items.trash', compact('items'));
+        return view('items.trash', compact('items', 'retentionDays'));
     }
 
     public function restore(Item $item)

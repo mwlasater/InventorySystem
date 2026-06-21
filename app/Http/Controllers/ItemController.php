@@ -43,7 +43,7 @@ class ItemController extends Controller
             $query->orderBy($sortField, $sortDir === 'asc' ? 'asc' : 'desc');
         }
 
-        $perPage = in_array($request->get('per_page'), [25, 50, 100]) ? $request->get('per_page') : 25;
+        $perPage = in_array($request->get('per_page'), [25, 50, 100]) ? $request->get('per_page') : \App\Models\Setting::get('items_per_page');
         $items = $query->paginate($perPage)->withQueryString();
 
         $viewMode = $request->get('view', session('item_view_mode', 'grid'));
